@@ -2,6 +2,7 @@ script.sh
 /unused
 *-secret.yml
 *-secret.yaml
+/chart-values/mongodb-values.yml
 
 
 # dependencies

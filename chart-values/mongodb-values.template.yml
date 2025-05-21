@@ -186,9 +186,9 @@ auth:
   ## @param auth.passwords List of passwords for the custom users set at `auth.usernames`
   ## @param auth.databases List of custom databases to be created during the initialization
   ##
-  usernames: [ "online-auction" ]
+  usernames: [ "${mongodb_username}" ]
   passwords: []
-  databases: [ "auction-db" ]
+  databases: [ "${mongodb_database}" ]
   ## @param auth.username DEPRECATED: use `auth.usernames` instead
   ## @param auth.password DEPRECATED: use `auth.passwords` instead
   ## @param auth.database DEPRECATED: use `auth.databases` instead
@@ -278,8 +278,8 @@ tls:
     pullSecrets: []
   ## e.g:
   ## extraDnsNames
-  ##   "DNS.6": ""
-  ##   "DNS.7": ""
+  ##   "DNS.6": "$my_host"
+  ##   "DNS.7": "$test"
   ##
   extraDnsNames: []
   ## @param tls.mode Allows to set the tls mode which should be used when tls is enabled (options: `allowTLS`, `preferTLS`, `requireTLS`)
@@ -2472,13 +2472,13 @@ metrics:
     dbstats: false
     ## @param metrics.collector.topmetrics Boolean Enable collecting metrics from top admin command
     topmetrics: false
-    ## @param metrics.collector.indexstats Boolean Enable collecting metrics from 
+    ## @param metrics.collector.indexstats Boolean Enable collecting metrics from $indexStats
     indexstats: false
-    ## @param metrics.collector.collstats Boolean Enable collecting metrics from 
+    ## @param metrics.collector.collstats Boolean Enable collecting metrics from $collStats
     collstats: false
-    ## @param metrics.collector.collstatsColls List of \<databases\>.\<collections\> to get 
+    ## @param metrics.collector.collstatsColls List of \<databases\>.\<collections\> to get $collStats
     collstatsColls: []
-    ## @param metrics.collector.indexstatsColls List - List of \<databases\>.\<collections\> to get 
+    ## @param metrics.collector.indexstatsColls List - List of \<databases\>.\<collections\> to get $indexStats
     indexstatsColls: []
     ## @param metrics.collector.collstatsLimit Number - Disable collstats, dbstats, topmetrics and indexstats collector if there are more than \<n\> collections. 0=No limit
     collstatsLimit: 0
