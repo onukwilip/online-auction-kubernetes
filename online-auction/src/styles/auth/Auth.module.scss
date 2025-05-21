@@ -1,0 +1,51 @@
+@import "../variables.scss";
+
+.auth {
+  background: rgba(whitesmoke, 1);
+  height: 100vh;
+  .body {
+    @include flex(center, center, 0, row);
+    width: 100vw;
+    margin-top: $big-spacing;
+  }
+  .trans {
+    margin: 10px;
+    background: $glass-gradient;
+    color: rgba(black, 0.7);
+    padding: $spacing * 2;
+    a {
+      cursor: pointer;
+    }
+  }
+  .change-password {
+    margin: 10px;
+    background: $glass-gradient;
+    color: rgba(black, 0.7);
+    padding: $spacing * 2;
+    width: 500px;
+    min-width: 250px;
+    a {
+      cursor: pointer;
+    }
+  }
+}
+
+.input {
+  width: 100%;
+}
+
+.actions {
+  text-align: center;
+  button.send {
+    @include inverted();
+    &:hover {
+      @include inverted-hover();
+    }
+  }
+}
+
+@media (max-width: 800px) {
+  .pre-header {
+    display: none;
+  }
+}

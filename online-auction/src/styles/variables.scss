@@ -1,0 +1,39 @@
+$pry-colour: rgba(gold, 1);
+$text-colour: rgba(black, 1);
+$light-gray: rgba(lightgray, 0.2);
+$overlay: rgba(black, 0.5);
+$spacing: 1rem;
+$big-spacing: 5rem;
+$box-shadow: 0px 0px 10px rgba(black, 0.5);
+$section-shadow: 0px 10px 30px rgba(black, 0.1);
+$glass: rgba(white, 0.3);
+$glass-gradient: linear-gradient(
+  to bottom right,
+  rgba($pry-colour, 0.5),
+  $glass
+);
+
+@mixin inverted() {
+  color: $pry-colour;
+  background-color: black;
+}
+
+@mixin inverted-hover() {
+  color: black;
+  background-color: $pry-colour;
+}
+
+@mixin grid($col, $row, $gap) {
+  display: grid;
+  grid-template-columns: $col;
+  grid-auto-rows: $row;
+  gap: $gap;
+}
+
+@mixin flex($ai, $jc, $gap, $fld) {
+  display: flex;
+  align-items: $ai;
+  justify-content: $jc;
+  gap: $gap;
+  flex-direction: $fld;
+}

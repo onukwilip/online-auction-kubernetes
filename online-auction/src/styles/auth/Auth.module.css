@@ -1,0 +1,28 @@
+.auth {
+  background: whitesmoke;
+  height: 100vh;
+}
+.auth .body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-direction: row;
+  width: 100vw;
+  margin-top: 5rem;
+}
+.auth .trans {
+  margin: 10px;
+  background: linear-gradient(to bottom right, rgba(255, 215, 0, 0.5), rgba(255, 255, 255, 0.3));
+  color: rgba(0, 0, 0, 0.7);
+  padding: 2rem;
+}
+.auth .trans a {
+  cursor: pointer;
+}
+
+@media (max-width: 800px) {
+  .pre-header {
+    display: none;
+  }
+}/*# sourceMappingURL=Auth.module.css.map */

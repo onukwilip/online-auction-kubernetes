@@ -1,0 +1,90 @@
+.current {
+  padding: 5rem;
+  max-width: 100vw;
+}
+.current h1.title {
+  font-size: 40px;
+  font-weight: bold;
+}
+.current h1.title em {
+  font-weight: normal;
+}
+.current .auctions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding-top: 3rem;
+}
+.current .actions {
+  text-align: center;
+  padding: 1rem;
+}
+.current .more {
+  height: 50px;
+  width: 200px;
+  background-color: black;
+  color: gold;
+  font-size: 18px;
+}
+.current .more:hover {
+  background-color: gold;
+  color: black;
+}
+
+.current-item .img-container .badge {
+  position: absolute;
+  right: 0;
+  min-width: 120px;
+  height: 40px;
+  background-color: whitesmoke;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-direction: row;
+  border-radius: 5px;
+  margin: 1rem;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+.current-item .img-container .badge em {
+  font-size: 20px;
+  font-family: "Poppins";
+}
+.current-item .img-container .badge em.day {
+  font-size: 14px;
+}
+.current-item .img-container img {
+  width: 100%;
+  height: 300px;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.current-item .card-content .price em {
+  font-size: 30px;
+  font-family: "Poppins";
+  font-weight: normal;
+}
+.current-item .card-content .start-bid {
+  margin-bottom: 1rem;
+}
+.current-item .card-content .start-bid em {
+  font-weight: bold;
+}
+.current-item .actions .submit {
+  background-color: gold;
+  width: 100%;
+  height: 50px;
+}
+.current-item .actions .submit:hover {
+  background-color: rgba(255, 215, 0, 0.8);
+}
+
+@media (max-width: 350px) {
+  .current {
+    padding: 3rem 1rem;
+  }
+}/*# sourceMappingURL=Current.module.css.map */

@@ -1,0 +1,79 @@
+.banner {
+  background-image: linear-gradient(to right, gold, wheat, rgba(255, 215, 0, 0.2));
+  max-width: 100vw;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: auto;
+  gap: 0;
+}
+.banner > div {
+  position: relative;
+}
+.banner .desc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-direction: column;
+}
+.banner .desc em {
+  font-size: 60px;
+  padding: 10px;
+  line-height: 50px;
+}
+.banner .desc button {
+  margin: 3rem;
+  height: 80px;
+  font-size: 24px;
+  width: 250px;
+  background: #000;
+}
+.banner .desc button:hover {
+  background: white;
+}
+.banner .desc .normal {
+  color: white;
+}
+.banner .desc .hover {
+  color: black;
+}
+.banner .img {
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+.banner .img img {
+  width: 600px;
+  height: 600px;
+  -o-object-fit: cover;
+     object-fit: cover;
+  border-radius: 50%;
+  position: absolute;
+}
+
+@media (max-width: 450px) {
+  .banner {
+    grid-template-columns: 1fr;
+  }
+  .banner .img {
+    display: none;
+  }
+  .banner .desc {
+    width: 100%;
+  }
+  .banner .desc::after {
+    content: "";
+    width: 100%;
+    min-height: 100%;
+    position: absolute;
+    background-image: url(../../assets/img/happy.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.6;
+  }
+  .banner .desc em {
+    z-index: 1;
+    text-align: center;
+    font-size: 40px;
+  }
+}/*# sourceMappingURL=Banner.module.css.map */

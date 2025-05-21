@@ -1,0 +1,104 @@
+@import "../variables.scss";
+.login-signup {
+  background-image: $glass-gradient;
+  padding: $spacing + 1rem;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  max-width: 500px;
+}
+.login {
+  @include flex(center, center, $spacing, column);
+  width: 400px;
+  .input {
+    div:first-of-type {
+      height: 50px;
+    }
+  }
+  form {
+    width: 100%;
+  }
+  .submit {
+    width: 100%;
+    background: linear-gradient(
+      to top left,
+      rgba($pry-colour, 0.8),
+      rgba($pry-colour, 0.7)
+    );
+    box-shadow: 0 0 10px 7px rgba($pry-colour, 0.4);
+    &:hover {
+      background-color: $pry-colour;
+    }
+  }
+  .check {
+    @include flex(center, space-between, 0, row);
+    a {
+      color: $pry-colour;
+    }
+  }
+  .sign-up-link {
+    em {
+      color: $pry-colour;
+      cursor: pointer;
+    }
+  }
+}
+
+.sign-up {
+  @include flex(center, center, $spacing, column);
+  width: 400px;
+  .input {
+    div:first-of-type {
+      height: 50px;
+    }
+  }
+  form {
+    width: 100%;
+  }
+  .submit {
+    width: 100%;
+    background: linear-gradient(
+      to top left,
+      rgba($pry-colour, 0.8),
+      rgba($pry-colour, 0.7)
+    );
+    box-shadow: 0 0 10px 7px rgba($pry-colour, 0.4);
+    &:hover {
+      background-color: $pry-colour;
+    }
+  }
+  .check {
+    @include flex(center, space-between, 0, row);
+    a {
+      color: $pry-colour;
+    }
+  }
+  .sign-up-link {
+    em {
+      color: $pry-colour;
+      cursor: pointer;
+    }
+  }
+}
+
+@media (max-width: 470px) {
+  .login-signup {
+    padding: $spacing;
+  }
+}
+@media (max-width: 430px) {
+  .login-signup {
+    .login,
+    .sign-up {
+      max-width: 300px;
+    }
+  }
+}
+
+@media (max-width: 310px) {
+  .login-signup {
+    .login,
+    .sign-up {
+      max-width: 200px;
+    }
+  }
+}

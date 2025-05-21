@@ -1,0 +1,207 @@
+.shop {
+  max-width: 100vw;
+}
+.shop .body {
+  max-width: 100vw;
+  margin: 2rem 8.5rem;
+}
+.shop .body .heading {
+  padding: 2rem;
+  width: 100%;
+  height: 150px;
+  background-image: linear-gradient(to top right, gold, rgba(255, 215, 0, 0.5));
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+  flex-direction: row;
+}
+.shop .body .heading h1 {
+  text-transform: uppercase;
+  font-size: 35px;
+}
+.shop .body .sub-body {
+  display: grid;
+  grid-template-columns: 0.2fr 0.8fr;
+  grid-auto-rows: auto;
+  gap: 1rem;
+  width: 100%;
+}
+.shop .body .sub-body .items-container {
+  width: inherit;
+}
+.shop .body .sub-body .items-container .search-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  flex-direction: row;
+}
+.shop .body .sub-body .items-container .search-container .hamburger {
+  font-size: 20px;
+  cursor: pointer;
+  display: none;
+}
+.shop .body .sub-body .items-container .search {
+  width: 400px;
+}
+.shop .body .sub-body .items {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.shop .body .mobile-filter {
+  display: none;
+  position: fixed;
+  top: 100px;
+  left: 10px;
+  background-color: white;
+  width: 220px;
+  -webkit-animation: slide-in 0.2s forwards;
+          animation: slide-in 0.2s forwards;
+}
+
+.filter {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 120px;
+  left: 0;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  padding: 1rem;
+  border-radius: 5px;
+  height: auto;
+}
+.filter .category {
+  height: 30px;
+  display: block;
+}
+.filter .submit {
+  background: gold;
+}
+.filter .submit:hover {
+  background: rgba(255, 215, 0, 0.5);
+}
+
+.product .img-container {
+  cursor: pointer;
+}
+.product .img-container .badge {
+  position: absolute;
+  right: 0;
+  min-width: 120px;
+  height: 40px;
+  background-color: whitesmoke;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-direction: row;
+  border-radius: 5px;
+  margin: 1rem;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+.product .img-container .badge em {
+  font-size: 20px;
+  font-family: "Poppins";
+}
+.product .img-container .badge em.day {
+  font-size: 14px;
+}
+.product .img-container img {
+  width: 100%;
+  height: 300px;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.product .card-content .price em {
+  font-size: 30px;
+  font-family: "Poppins";
+  font-weight: normal;
+}
+.product .card-content .price .desc {
+  cursor: pointer;
+}
+.product .card-content .start-bid {
+  margin-bottom: 1rem;
+}
+.product .card-content .start-bid em {
+  font-weight: bold;
+}
+.product .actions .submit {
+  background-color: gold;
+  width: 100%;
+  height: 50px;
+}
+.product .actions .submit:hover {
+  background-color: rgba(255, 215, 0, 0.8);
+}
+
+@-webkit-keyframes slide-in {
+  from {
+    left: -1000px;
+  }
+  to {
+    left: 10px;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    left: -1000px;
+  }
+  to {
+    left: 10px;
+  }
+}
+@media (max-width: 800px) {
+  .shop .pre-header {
+    display: none;
+  }
+  .shop .body {
+    margin: 3rem;
+  }
+  .shop .body .sub-body {
+    grid-template-columns: 1fr;
+  }
+  .shop .body .sub-body .items-container .search-container .hamburger {
+    display: block;
+  }
+  .shop .body .sub-body .filter-container {
+    display: none;
+  }
+  .shop .body .mobile-filter {
+    display: block;
+  }
+}
+@media (max-width: 600px) {
+  .shop .body {
+    margin: 1rem;
+  }
+}
+@media (max-width: 400px) {
+  .shop .body {
+    margin: 0;
+  }
+  .shop .body .heading {
+    margin: 5px;
+    max-width: 98vw;
+  }
+  .shop .body .sub-body .items-container .search {
+    width: 90%;
+    margin: 10px;
+  }
+}
+@media (max-width: 301px) {
+  .shop .body .sub-body .items {
+    padding: 1rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+}/*# sourceMappingURL=Shop.module.css.map */

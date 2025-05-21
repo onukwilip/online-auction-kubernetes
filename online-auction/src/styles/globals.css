@@ -1,0 +1,133 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200&display=swap");
+
+@font-face {
+  font-family: Gumela;
+  src: url("/fonts/Gumela Regular.otf");
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  font-family: "Gumela", "Poppins", sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 3px;
+}
+::-webkit-scrollbar-track {
+  width: 3px;
+}
+::-webkit-scrollbar-thumb {
+  background: gold;
+  color: gold;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  /* word-break: break-all; */
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+em {
+  font-style: normal;
+}
+.error-container {
+  list-style-type: none;
+  padding: 10px;
+  border: 3px double orangered;
+  background-color: rgba(255, 69, 0, 0.2);
+  border-radius: 10px;
+  margin: 10px;
+}
+.error-container li {
+  margin: 0;
+  padding: 0;
+  color: white;
+  text-align: center;
+}
+
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.response-error {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 1rem;
+}
+.response-error h2 {
+  color: white;
+}
+
+.timer {
+  position: absolute;
+  right: 0;
+  min-width: 120px;
+  height: 40px;
+  background-color: whitesmoke;
+  padding: 1rem;
+  /* @include flex(center, center, 5px, row); */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-direction: row;
+  border-radius: 5px;
+  margin: 1rem;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+.timer em {
+  font-size: 20px;
+  font-family: "Poppins";
+}
+
+.timer em.day {
+  font-size: 14px;
+}
+
+.badge {
+  background-image: url("../assets/img/badge.png");
+  background-repeat: no-repeat;
+  min-width: 150px;
+  height: 150px;
+  position: absolute;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.badge > em {
+  font-size: 18px;
+}
+
+.badge > em:last-of-type em {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.badge > em:last-of-type sup {
+  font-size: 20px;
+}

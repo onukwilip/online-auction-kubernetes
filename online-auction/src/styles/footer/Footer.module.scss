@@ -1,0 +1,10 @@
+@import "../variables.scss";
+
+.footer {
+  background-color: black;
+  color: $pry-colour;
+  height: 200px;
+  font-size: 20px;
+  font-family: "Poppins";
+  @include flex(center, center, 0, row);
+}

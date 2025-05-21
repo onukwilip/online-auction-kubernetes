@@ -1,0 +1,100 @@
+.login-signup {
+  background-image: linear-gradient(to bottom right, rgba(255, 215, 0, 0.5), rgba(255, 255, 255, 0.3));
+  padding: 2rem;
+  border-radius: 10px;
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  max-width: 500px;
+}
+
+.login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-direction: column;
+  width: 400px;
+}
+.login .input div:first-of-type {
+  height: 50px;
+}
+.login form {
+  width: 100%;
+}
+.login .submit {
+  width: 100%;
+  background: linear-gradient(to top left, rgba(255, 215, 0, 0.8), rgba(255, 215, 0, 0.7));
+  box-shadow: 0 0 10px 7px rgba(255, 215, 0, 0.4);
+}
+.login .submit:hover {
+  background-color: gold;
+}
+.login .check {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  flex-direction: row;
+}
+.login .check a {
+  color: gold;
+}
+.login .sign-up-link em {
+  color: gold;
+  cursor: pointer;
+}
+
+.sign-up {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-direction: column;
+  width: 400px;
+}
+.sign-up .input div:first-of-type {
+  height: 50px;
+}
+.sign-up form {
+  width: 100%;
+}
+.sign-up .submit {
+  width: 100%;
+  background: linear-gradient(to top left, rgba(255, 215, 0, 0.8), rgba(255, 215, 0, 0.7));
+  box-shadow: 0 0 10px 7px rgba(255, 215, 0, 0.4);
+}
+.sign-up .submit:hover {
+  background-color: gold;
+}
+.sign-up .check {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  flex-direction: row;
+}
+.sign-up .check a {
+  color: gold;
+}
+.sign-up .sign-up-link em {
+  color: gold;
+  cursor: pointer;
+}
+
+@media (max-width: 470px) {
+  .login-signup {
+    padding: 1rem;
+  }
+}
+@media (max-width: 430px) {
+  .login-signup .login,
+.login-signup .sign-up {
+    max-width: 300px;
+  }
+}
+@media (max-width: 310px) {
+  .login-signup .login,
+.login-signup .sign-up {
+    max-width: 200px;
+  }
+}/*# sourceMappingURL=LoginSignup.module.css.map */

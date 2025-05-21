@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: online-auction
+  app: online-auction
+  obj: deployment
+spec:
+  selector:
+    matchLabels:
+      app: online-auction
+      obj: pod
+  template:
+    metadata:
+      labels:
+        app: online-auction
+        obj: pod
+    spec:
+      imagePullSecrets:
+      - name: ghcr-secret
+      containers:
+      - name: online-auction
+        image: ghcr.io/onukwilip/online-auction:latest
+        ports:
+        - containerPort: 3000
+          name: online-auction-port
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "0.2"
+          limits:
+            memory: "256Mi"
+            cpu: "0.4"
+        env:
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: online-auction-secret
+              key: MONGODB_URI
+        - name: SMTP_APP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: online-auction-secret
+              key: SMTP_APP_PASSWORD
+        - name: JWT_KEY
+          valueFrom:
+            secretKeyRef:
+              name: online-auction-secret
+              key: JWT_KEY
+        - name: CLOUDINARY_NAME
+          valueFrom:
+            secretKeyRef:
+              name: online-auction-secret
+              key: CLOUDINARY_NAME
+        - name: CLOUDINARY_KEY
+          valueFrom:
+            secretKeyRef:
+              name: online-auction-secret
+              key: CLOUDINARY_KEY
+        - name: CLOUDINARY_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: online-auction-secret
+              key: CLOUDINARY_SECRET
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: online-auction-secret
+              key: REDIS_URL

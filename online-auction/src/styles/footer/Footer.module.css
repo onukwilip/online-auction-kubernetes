@@ -1,0 +1,12 @@
+.footer {
+  background-color: black;
+  color: gold;
+  height: 200px;
+  font-size: 20px;
+  font-family: "Poppins";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-direction: row;
+}/*# sourceMappingURL=Footer.module.css.map */

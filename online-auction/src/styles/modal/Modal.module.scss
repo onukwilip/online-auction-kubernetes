@@ -1,0 +1,32 @@
+@import "../variables.scss";
+.modal {
+  min-width: 100vw;
+  min-height: 100vh;
+  position: fixed;
+  background-color: $overlay;
+  z-index: 15;
+  top: 0;
+  left: 0;
+  @include flex(center, center, 0, row);
+  .background {
+    min-width: 100vw;
+    min-height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+  .body {
+    z-index: 16;
+    margin: 10px;
+    animation: scale 0.3s forwards;
+  }
+}
+
+@keyframes scale {
+  from {
+    transform: scale(0.5);
+  }
+  to {
+    transform: scale(1);
+  }
+}

@@ -1,0 +1,87 @@
+@import "../variables.scss";
+
+.bid {
+  .img-container {
+    .badge {
+      position: absolute;
+      right: 0;
+      min-width: 120px;
+      height: 40px;
+      background-color: whitesmoke;
+      padding: $spacing;
+      @include flex(center, center, 5px, row);
+      border-radius: 5px;
+      margin: $spacing;
+      box-shadow: $box-shadow;
+      em {
+        font-size: 20px;
+        font-family: "Poppins";
+      }
+      em.day {
+        font-size: 14px;
+      }
+    }
+    img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+    }
+  }
+  .card-content {
+    .price {
+      em {
+        font-size: 30px;
+        font-family: "Poppins";
+        font-weight: normal;
+      }
+    }
+
+    .start-bid {
+      margin-bottom: $spacing;
+      em {
+        font-weight: bold;
+      }
+    }
+  }
+  .actions {
+    .submit {
+      background-color: $pry-colour;
+      width: 100%;
+      height: 50px;
+      &:hover {
+        background-color: rgba($pry-colour, 0.8);
+      }
+    }
+  }
+}
+
+.finished-bid {
+  .img-container {
+    .badge {
+      background-image: url("../../assets/img/badge.png");
+      background-repeat: no-repeat;
+      min-width: 150px;
+      height: 150px;
+      position: absolute;
+      right: 0;
+      @include flex(center, center, 5px, column);
+      & > em {
+        font-size: 18px;
+        &:last-of-type {
+          sup {
+            font-size: 20px;
+          }
+          em {
+            font-size: 30px;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+    img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+    }
+  }
+}

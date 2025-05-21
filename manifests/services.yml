@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: online-auction-service
+  labels:
+    app: online-auction
+    obj: service
+spec:
+  selector:
+    app: online-auction
+    obj: pod
+  type: ClusterIP
+  ports:
+  - port: 3000
+    name: online-auction-port
