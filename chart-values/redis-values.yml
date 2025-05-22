@@ -332,7 +332,7 @@ master:
       cpu: 0.2
       memory: 128Mi
     limits:
-      cpu: 0.5
+      cpu: 0.4
       memory: 512Mi
   ## Configure Pods Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
@@ -693,7 +693,7 @@ replica:
   kind: StatefulSet
   ## @param replica.replicaCount Number of Redis(R) replicas to deploy
   ##
-  replicaCount: 3
+  replicaCount: 2
   ## @param replica.revisionHistoryLimit The number of old history to retain to allow rollback
   ## NOTE: Explicitly setting this field to 0, will result in cleaning up all the history, breaking ability to rollback
   revisionHistoryLimit: 10
@@ -1033,7 +1033,7 @@ replica:
     ## If set to "-", storageClassName: "", which disables dynamic provisioning
     ## If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner
     ##
-    storageClass: ""
+    storageClass: "standard"
     ## @param replica.persistence.accessModes Persistent Volume access modes
     ##
     accessModes:

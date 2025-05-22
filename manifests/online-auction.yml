@@ -2,8 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: online-auction
-  app: online-auction
-  obj: deployment
+  labels:
+    app: online-auction
+    obj: deployment
 spec:
   selector:
     matchLabels:
@@ -22,7 +23,7 @@ spec:
         image: ghcr.io/onukwilip/online-auction:latest
         ports:
         - containerPort: 3000
-          name: online-auction-port
+          name: oa-port
         resources:
           requests:
             memory: "128Mi"
