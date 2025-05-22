@@ -1,9 +1,16 @@
+# random
 script.sh
 /unused
-*-secret.yml
-*-secret.yaml
 /chart-values/mongodb-values.yml
 
+# k8s secrets
+*-secret.yml
+*-secret.yaml
+
+# terraform
+.terraform.*
+.terraform
+*.tfstate
 
 # dependencies
 /node_modules
