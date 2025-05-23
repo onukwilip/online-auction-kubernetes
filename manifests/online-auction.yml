@@ -21,6 +21,7 @@ spec:
       containers:
       - name: online-auction
         image: ghcr.io/onukwilip/online-auction:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
           name: oa-port
@@ -32,6 +33,10 @@ spec:
             memory: "256Mi"
             cpu: "0.4"
         env:
+        - name: PORT
+          value: "3000"
+        - name: DOMAIN
+          value: "http://onlineauction.onukwilip.chickenkiller.com"
         - name: MONGODB_URI
           valueFrom:
             secretKeyRef:

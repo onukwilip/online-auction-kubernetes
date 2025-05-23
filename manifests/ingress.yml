@@ -8,7 +8,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: onlineauction.com
+  - host: onlineauction.onukwilip.chickenkiller.com
     http:
       paths:
       - path: /
