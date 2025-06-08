@@ -520,10 +520,28 @@ nodeAffinityPreset:
 ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
 ## Note: podAffinityPreset, podAntiAffinityPreset, and nodeAffinityPreset will be ignored when it's set
 ##
-affinity: {}
-## @param nodeSelector MongoDB(&reg;) Node labels for pod assignment
-## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
-##
+affinity:
+  podAntiAffinity:
+    # requiredDuringSchedulingIgnoredDuringExecution:
+    # - labelSelector:
+    #     matchExpressions:
+    #     - key: app
+    #       operator: In
+    #       values:
+    #       - mongodb
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - mongodb
+        topologyKey: "kubernetes.io/hostname"
+    ## @param nodeSelector MongoDB(&reg;) Node labels for pod assignment
+    ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+    ##
 nodeSelector: {}
 ## @param tolerations MongoDB(&reg;) Tolerations for pod assignment
 ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
@@ -625,10 +643,10 @@ resourcesPreset: "small"
 ##
 resources:
   requests:
-    cpu: 0.2
+    cpu: 0.5
     memory: 128Mi
   limits:
-    cpu: 0.4
+    cpu: 0.5
     memory: 512Mi
   ## @param containerPorts.mongodb MongoDB(&reg;) container port
 
@@ -1812,7 +1830,10 @@ arbiter:
   ## @param arbiter.podLabels Arbiter pod labels
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
   ##
-  podLabels: {}
+  podLabels:
+    app: mongodb-arbiter
+    obj: pod
+    role: arbiter
   ## @param arbiter.podAnnotations Arbiter Pod annotations
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   ##
@@ -1891,7 +1912,13 @@ arbiter:
   ##     cpu: 3
   ##     memory: 1024Mi
   ##
-  resources: {}
+  resources:
+    requests:
+      cpu: 0.5
+      memory: 128Mi
+    limits:
+      cpu: 0.5
+      memory: 512Mi
   ## @param arbiter.containerPorts.mongodb MongoDB(&reg;) arbiter container port
   ##
   containerPorts:
