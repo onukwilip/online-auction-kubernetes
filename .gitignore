@@ -2,6 +2,7 @@
 script.sh
 /unused
 /chart-values/mongodb-values.yml
+todo.sh
 
 # k8s secrets
 *-secret.yml
