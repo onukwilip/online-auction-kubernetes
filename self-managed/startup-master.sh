@@ -28,4 +28,4 @@ chmod +x ./master.sh
 sudo chown -R $USER:$USER /home/$USER/.kube
 
 cd ../manifests
-kubec apply -f ./metrics-server.yml
+kubectl apply -f ./metrics-server.yml
