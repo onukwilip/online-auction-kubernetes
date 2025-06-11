@@ -2,7 +2,7 @@
 script.sh
 /unused
 /chart-values/mongodb-values.yml
-/self-managed/todo.sh
+/self-managed/TODO.md
 
 # k8s secrets
 *-secret.yml
