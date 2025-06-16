@@ -48,6 +48,7 @@ spec:
         command: [ '/usr/local/bin/cloud-controller-manager' ]
         args:
         - "--cloud-provider=gce"
+        - "--cluster-cidr=192.168.0.0/16"
         env:
         - name: KUBERNETES_SERVICE_HOST
           value: "10.96.0.1"
