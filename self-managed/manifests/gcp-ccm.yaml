@@ -50,6 +50,7 @@ spec:
         - "--cloud-provider=gce"
         - "--cluster-cidr=192.168.0.0/16"
         - "--allocate-node-cidrs=true"
+        - "--cloud-config=/etc/kubernetes/cloud.config/gcp-ccm.conf"
         env:
         - name: KUBERNETES_SERVICE_HOST
           value: "10.96.0.1"
