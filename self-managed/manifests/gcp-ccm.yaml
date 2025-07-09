@@ -53,7 +53,7 @@ spec:
         - "--cloud-config=/etc/kubernetes/cloud.config/gcp-ccm.conf"
         env:
         - name: KUBERNETES_SERVICE_HOST
-          value: "10.96.0.1"
+          value: ${MASTER_INTERNAL_IP}
         - name: KUBERNETES_SERVICE_PORT
           value: "6443"
         - name: GOOGLE_APPLICATION_CREDENTIALS

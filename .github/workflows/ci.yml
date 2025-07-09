@@ -22,6 +22,6 @@ jobs:
           cd ./online-auction
           docker build -t ghcr.io/onukwilip/online-auction:latest .
 
-      - name: Push the imag to Docker hub
+      - name: Push the image to Docker hub
         run: |
           docker push ghcr.io/onukwilip/online-auction:latest

@@ -1,0 +1,116 @@
+name: Set up Cluster on Compute Engine VMs
+
+on:
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ vars.PROJECT_ID }}
+  ZONE: us-central1-a
+  MASTER_INSTANCE_NAME: k8s-master-node
+  WORKER_INSTANCE_NAME: k8s-worker-node
+  MASTER_TEMPLATE_NAME: k8s-master-node
+  WORKER_TEMPLATE_NAME: wok8s-worker-node
+  MASTER_SSH_KEY: ${{ secrets.MASTER_SSH_KEY }}
+  WORKER_SSH_KEY: ${{ secrets.WORKER_SSH_KEY }}
+  SSH_USER: onukwilip
+
+jobs:
+  create-vms:
+    name: 🏗️ Create VM Instances
+    runs-on: ubuntu-latest
+    outputs:
+      master_ip: ${{ steps.master-ip.outputs.ip }}
+      worker_ip: ${{ steps.worker-ip.outputs.ip }}
+    steps:
+      - name: 🧰 Set up gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Authenticate for GCP
+        id: gcp-auth
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: 🚀 Create master VM
+        run: |
+          gcloud compute instances create "$MASTER_INSTANCE_NAME" \
+            --zone="$ZONE" \
+            --source-instance-template="$MASTER_TEMPLATE_NAME"
+
+      - name: 🚀 Create worker VM
+        run: |
+          gcloud compute instances create "$WORKER_INSTANCE_NAME" \
+            --zone="$ZONE" \
+            --source-instance-template="$WORKER_TEMPLATE_NAME"
+
+      - name: 🌐 Get master public IP
+        id: master-ip
+        run: |
+          IP=$(gcloud compute instances describe "$MASTER_INSTANCE_NAME" \
+            --zone="$ZONE" \
+            --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
+          echo "ip=$IP" >> "$GITHUB_OUTPUT"
+
+      - name: 🌐 Get worker public IP
+        id: worker-ip
+        run: |
+          IP=$(gcloud compute instances describe "$WORKER_INSTANCE_NAME" \
+            --zone="$ZONE" \
+            --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
+          echo "ip=$IP" >> "$GITHUB_OUTPUT"
+
+  bootstrap-worker:
+    name: 🛠️ Bootstrap Worker Node
+    needs: create-vms
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 💻 SSH into worker and run script
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ needs.create-vms.outputs.worker_ip }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.WORKER_SSH_KEY }}
+          script: |
+            chmod +x ~/scripts/bootstrap-worker.sh
+            sudo ~/scripts/bootstrap-worker.sh
+
+  setup-cloud-controller:
+    name: ☁️ Set up Cloud Controller Manager
+    needs: [bootstrap-worker, create-vms]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 💻 SSH into master and run CCM script
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ needs.create-vms.outputs.master_ip }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.MASTER_SSH_KEY }}
+          script: |
+            chmod +x ~/scripts/setup-ccm.sh
+            sudo ~/scripts/setup-ccm.sh
+
+  setup-csi:
+    name: 💾 Set up CSI Driver
+    needs: [setup-cloud-controller, create-vms]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 💻 SSH into master and run CSI driver script
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ needs.create-vms.outputs.master_ip }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.MASTER_SSH_KEY }}
+          script: |
+            chmod +x ~/scripts/setup-csi.sh
+            sudo ~/scripts/setup-csi.sh
