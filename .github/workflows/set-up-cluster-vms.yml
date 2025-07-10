@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       new_cluster:
-        description: "Set to true if the cluster has NOT been set up"
+        description: "Wait for cluster set up to run startup scripts"
         required: true
         type: boolean
         default: true
