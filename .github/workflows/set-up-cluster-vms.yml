@@ -112,7 +112,7 @@ jobs:
           JOIN_CMD=$(gcloud compute ssh ${{ env.SSH_USER }}@${{ env.MASTER_INSTANCE_NAME }} \
             --zone=${{ env.ZONE }} \
             --quiet \
-            --command='kubeadm token create --print-join-command')
+            --command='kubeadm token create --print-join-command' 2>/dev/null | grep '^kubeadm join')
 
           echo "Join command is: $JOIN_CMD"
           echo "join_command=$JOIN_CMD" >> "$GITHUB_OUTPUT"
