@@ -113,6 +113,9 @@ jobs:
       - name: 📥 Checkout repo
         uses: actions/checkout@v3
 
+      - name: 🐛 Debug Worker IP
+        run: 'echo "Resolved Worker IP: ${{ needs.create-vms.outputs.worker_ip }}"'
+
       - name: 💻 SSH into worker and run script
         uses: appleboy/ssh-action@v1.0.3
         with:
