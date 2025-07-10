@@ -168,6 +168,13 @@ jobs:
             export PROJECT_ID=${{ env.PROJECT_ID }}
             export ZONE=${{ env.ZONE }}
 
+            echo "Outside Script"
+
+            echo "PROJECT_ID: $PROJECT_ID"
+            echo "ZONE: $ZONE"
+            echo "MASTER_NODE: $MASTER_NODE"
+            echo "WORKER_NODES: $WORKER_NODES"
+
             sudo chmod +x ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
             sudo ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
 

@@ -6,6 +6,8 @@ set -e
 # MASTER_NODE="k8s-master-node"
 # WORKER_NODES=("k8s-worker-node")
 
+echo "Inside Script"
+
 echo "PROJECT_ID: $PROJECT_ID"
 echo "ZONE: $ZONE"
 echo "MASTER_NODE: $MASTER_NODE"
