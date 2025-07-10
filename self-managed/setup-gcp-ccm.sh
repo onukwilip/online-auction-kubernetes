@@ -5,6 +5,12 @@ set -e
 # ZONE="us-central1-a"
 # MASTER_NODE="k8s-master-node"
 # WORKER_NODES=("k8s-worker-node")
+
+echo "PROJECT_ID: $PROJECT_ID"
+echo "ZONE: $ZONE"
+echo "MASTER_NODE: $MASTER_NODE"
+echo "WORKER_NODES: $WORKER_NODES"
+
 CLUSTER_CIDR="192.168.0.0/16"
 MASTER_INTERNAL_IP=$(gcloud compute instances describe $MASTER_NODE --zone=$ZONE --format='get(networkInterfaces[0].networkIP)')
 
