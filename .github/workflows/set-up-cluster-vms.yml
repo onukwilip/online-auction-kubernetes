@@ -90,21 +90,31 @@ jobs:
     needs: create-vms
     runs-on: ubuntu-latest
     outputs:
-      join_command: ${{ steps.join.outputs.stdout }}
+      join_command: ${{ steps.join.outputs.join_command }}
     steps:
+      - name: 🧰 Set up gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
       - name: 📥 Checkout repo
         uses: actions/checkout@v3
 
-      - name: 💻 SSH into master to get join command
+      - name: 💻 SSH into master and retrieve join command
         id: join
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ needs.create-vms.outputs.master_ip }}
-          username: ${{ env.SSH_USER }}
-          key: ${{ env.MASTER_SSH_KEY }}
-          script: |
-            kubeadm token create --print-join-command
-          script_stop: true
+        run: |
+          JOIN_CMD=$(gcloud compute ssh ${{ env.SSH_USER }}@${{ env.MASTER_INSTANCE_NAME }} \
+            --zone=${{ env.ZONE }} \
+            --quiet \
+            --command='kubeadm token create --print-join-command')
+
+          echo "Join command is: $JOIN_CMD"
+          echo "join_command=$JOIN_CMD" >> "$GITHUB_OUTPUT"
 
   bootstrap-worker:
     name: 🛠️ Bootstrap Worker Node
@@ -116,9 +126,9 @@ jobs:
 
       - name: 🐛 Debug Outputs
         run: |
-          'echo "Resolved Master IP: ${{ needs.create-vms.outputs.master_ip }}"'
-          'echo "Resolved Worker IP: ${{ needs.create-vms.outputs.worker_ip }}"'
-          'echo "Join Command: \"${{ needs.generate-join-command.outputs.join_command }}\""'
+          echo "Resolved Master IP: ${{ needs.create-vms.outputs.master_ip }}"
+          echo "Resolved Worker IP: ${{ needs.create-vms.outputs.worker_ip }}"
+          echo "Join Command: \"${{ needs.generate-join-command.outputs.join_command }}\""
 
       - name: 💻 SSH into worker and run script
         uses: appleboy/ssh-action@v1.0.3
