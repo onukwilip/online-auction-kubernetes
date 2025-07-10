@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       new_cluster:
-        description: "Indicate if the cluster has already been set up"
+        description: "Set to true if the cluster has NOT been set up"
         required: true
         type: boolean
         default: true
