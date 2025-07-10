@@ -138,6 +138,10 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.WORKER_SSH_KEY }}
           script: |
+            ls ~
+            ls ~/online-auction-kubernetes/
+            ls ~/online-auction-kubernetes/self-managed/
+            cat ~/online-auction-kubernetes/self-managed/bootstrap-worker.sh
             chmod +x ~/online-auction-kubernetes/self-managed/bootstrap-worker.sh
             sudo ~/online-auction-kubernetes/self-managed/bootstrap-worker.sh "${{ needs.generate-join-command.outputs.join_command }}"
 
