@@ -26,8 +26,8 @@ jobs:
     name: 🏗️ Create VM Instances
     runs-on: ubuntu-latest
     outputs:
-      master_ip: ${{ steps.master-ip.outputs.ip }}
-      worker_ip: ${{ steps.worker-ip.outputs.ip }}
+      master_ip: ${{ steps.master-ip.outputs.master_ip }}
+      worker_ip: ${{ steps.worker-ip.outputs.worker_ip }}
     steps:
       - name: 🧰 Set up gcloud SDK
         uses: google-github-actions/setup-gcloud@v2
@@ -68,7 +68,7 @@ jobs:
           IP=$(gcloud compute instances describe "$MASTER_INSTANCE_NAME" \
             --zone="$ZONE" \
             --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
-          echo "ip=$IP" >> "$GITHUB_OUTPUT"
+          echo "master_ip=$IP" >> "$GITHUB_OUTPUT"
 
       - name: 🌐 Get worker public IP
         id: worker-ip
@@ -76,7 +76,7 @@ jobs:
           IP=$(gcloud compute instances describe "$WORKER_INSTANCE_NAME" \
             --zone="$ZONE" \
             --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
-          echo "ip=$IP" >> "$GITHUB_OUTPUT"
+          echo "worker_ip=$IP" >> "$GITHUB_OUTPUT"
 
       - name: ⏱️ Wait for VMs to finish startup scripts
         if: ${{ github.event.inputs.new_cluster == true }}
@@ -117,7 +117,7 @@ jobs:
         run: |
           'echo "Resolved Master IP: ${{ needs.create-vms.outputs.master_ip }}"'
           'echo "Resolved Worker IP: ${{ needs.create-vms.outputs.worker_ip }}"'
-          'echo "Join Command: ${{ needs.generate-join-command.outputs.join_command }}"'
+          'echo "Join Command: \"${{ needs.generate-join-command.outputs.join_command }}\""'
 
       - name: 💻 SSH into worker and run script
         uses: appleboy/ssh-action@v1.0.3
