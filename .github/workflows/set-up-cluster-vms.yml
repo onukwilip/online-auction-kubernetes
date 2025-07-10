@@ -138,12 +138,8 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.WORKER_SSH_KEY }}
           script: |
-            ls ~
-            ls ~/online-auction-kubernetes/
-            ls ~/online-auction-kubernetes/self-managed/
-            cat ~/online-auction-kubernetes/self-managed/bootstrap-worker.sh
-            chmod +x ~/online-auction-kubernetes/self-managed/bootstrap-worker.sh
-            sudo ~/online-auction-kubernetes/self-managed/bootstrap-worker.sh "${{ needs.generate-join-command.outputs.join_command }}"
+            chmod +x ~/online-auction-kubernetes/self-managed/bootstrap-worker-node.sh
+            sudo ~/online-auction-kubernetes/self-managed/bootstrap-worker-node.sh "${{ needs.generate-join-command.outputs.join_command }}"
 
   setup-cloud-controller:
     name: ☁️ Set up Cloud Controller Manager
