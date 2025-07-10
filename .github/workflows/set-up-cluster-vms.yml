@@ -76,6 +76,7 @@ jobs:
           IP=$(gcloud compute instances describe "$WORKER_INSTANCE_NAME" \
             --zone="$ZONE" \
             --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
+          echo "Worker IP: $IP"
           echo "worker_ip=$IP" >> "$GITHUB_OUTPUT"
 
       - name: ⏱️ Wait for VMs to finish startup scripts
