@@ -5,7 +5,8 @@ on:
 
 env:
   PROJECT_ID: ${{ vars.PROJECT_ID }}
-  ZONE: us-central1-a
+  REGION: us-central1
+  ZONE: "us-central1-a"
   MASTER_INSTANCE_NAME: k8s-master-node
   WORKER_INSTANCE_NAME: k8s-worker-node
   MASTER_TEMPLATE_NAME: k8s-master-node
@@ -41,7 +42,7 @@ jobs:
             echo "🚀 Creating master VM..."
             gcloud compute instances create "$MASTER_INSTANCE_NAME" \
               --zone="$ZONE" \
-              --source-instance-template="$MASTER_TEMPLATE_NAME"
+              --source-instance-template="projects/${{env.PROJECT_ID}}/regions/${{env.REGION}}/instanceTemplates/${{env.MASTER_TEMPLATE_NAME}}"
           fi
 
       - name: 🚀 Create worker VM (if not exists)
@@ -52,7 +53,7 @@ jobs:
             echo "🚀 Creating worker VM..."
             gcloud compute instances create "$WORKER_INSTANCE_NAME" \
               --zone="$ZONE" \
-              --source-instance-template="$WORKER_TEMPLATE_NAME"
+              --source-instance-template="projects/${{env.PROJECT_ID}}/regions/${{env.REGION}}/instanceTemplates/${{env.WORKER_TEMPLATE_NAME}}"
           fi
 
       - name: 🌐 Get master public IP
