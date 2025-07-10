@@ -2,6 +2,11 @@ name: Set up Cluster on Compute Engine VMs
 
 on:
   workflow_dispatch:
+    inputs:
+      new_cluster:
+        description: "Indicate if the cluster has already been set up"
+        required: true
+        default: "true"
 
 env:
   PROJECT_ID: ${{ vars.PROJECT_ID }}
@@ -73,6 +78,7 @@ jobs:
           echo "ip=$IP" >> "$GITHUB_OUTPUT"
 
       - name: ⏱️ Wait for VMs to finish startup scripts
+        if: ${{ github.event.inputs.new_cluster == true }}
         run: |
           echo "Waiting 6 minutes for VMs to complete startup scripts..."
           sleep 360
@@ -82,7 +88,7 @@ jobs:
     needs: create-vms
     runs-on: ubuntu-latest
     outputs:
-      join_command: ${{ steps.join.outputs.command }}
+      join_command: ${{ steps.join.outputs.stdout }}
     steps:
       - name: 📥 Checkout repo
         uses: actions/checkout@v3
@@ -94,10 +100,9 @@ jobs:
           host: ${{ needs.create-vms.outputs.master_ip }}
           username: ${{ env.SSH_USER }}
           key: ${{ env.MASTER_SSH_KEY }}
-          script_stop: true
           script: |
-            JOIN_CMD=$(kubeadm token create --print-join-command)
-            echo "command=$JOIN_CMD" >> $GITHUB_OUTPUT
+            kubeadm token create --print-join-command
+          script_stop: true
 
   bootstrap-worker:
     name: 🛠️ Bootstrap Worker Node
