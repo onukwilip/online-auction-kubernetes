@@ -163,20 +163,21 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.MASTER_SSH_KEY }}
           script: |
-            export MASTER_NODE=${{ env.MASTER_INSTANCE_NAME}}
-            export WORKER_NODES="(${{ env.MASTER_INSTANCE_NAME}})"
-            export PROJECT_ID=${{ env.PROJECT_ID }}
-            export ZONE=${{ env.ZONE }}
-
             echo "Outside Script"
 
-            echo "PROJECT_ID: $PROJECT_ID"
-            echo "ZONE: $ZONE"
-            echo "MASTER_NODE: $MASTER_NODE"
-            echo "WORKER_NODES: $WORKER_NODES"
+            echo "PROJECT_ID: ${{ env.PROJECT_ID }}"
+            echo "ZONE: ${{ env.ZONE }}"
+            echo "MASTER_NODE: ${{ env.MASTER_INSTANCE_NAME }}"
+            echo "WORKER_NODES: ${{ env.WORKER_TEMPLATE_NAME }}"
 
             sudo chmod +x ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
-            sudo ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
+
+            PROJECT_ID=${{ env.PROJECT_ID }} \
+            ZONE=${{ env.ZONE }} \
+            MASTER_NODE=${{ env.MASTER_INSTANCE_NAME }} \
+            WORKER_NODES=${{ env.WORKER_TEMPLATE_NAME }} \
+
+            sudo -E ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
 
   setup-csi:
     name: 💾 Set up CSI Driver
