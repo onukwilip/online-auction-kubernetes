@@ -3,8 +3,8 @@
 set -e
 
 # 🔧 Required values - customize these
-PROJECT_ID="kubernetes-practice-462208"
-ZONE="us-central1-a"
+# PROJECT_ID="kubernetes-practice-462208"
+# ZONE="us-central1-a"
 MANIFEST_PATH="./online-auction-kubernetes/self-managed/manifests/gcp-csi-driver/kubernetes/overlays/stable-master"
 
 # 1 Create CSI namespace if it doesn't exist

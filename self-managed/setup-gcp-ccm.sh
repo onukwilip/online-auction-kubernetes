@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-PROJECT_ID="kubernetes-practice-462208"
-ZONE="us-central1-a"
-MASTER_NODE="k8s-master-node"
-WORKER_NODES=("k8s-worker-node")
+# PROJECT_ID="kubernetes-practice-462208"
+# ZONE="us-central1-a"
+# MASTER_NODE="k8s-master-node"
+# WORKER_NODES=("k8s-worker-node")
 CLUSTER_CIDR="192.168.0.0/16"
 MASTER_INTERNAL_IP=$(gcloud compute instances describe $MASTER_NODE --zone=$ZONE --format='get(networkInterfaces[0].networkIP)')
 

@@ -61,6 +61,33 @@ jobs:
             --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
           echo "ip=$IP" >> "$GITHUB_OUTPUT"
 
+      - name: ⏱️ Wait for VMs to finish startup scripts
+        run: |
+          echo "Waiting 6 minutes for VMs to complete startup scripts..."
+          sleep 360
+
+  generate-join-command:
+    name: 🔑 Generate kubeadm join command
+    needs: create-vms
+    runs-on: ubuntu-latest
+    outputs:
+      join_command: ${{ steps.join.outputs.command }}
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 💻 SSH into master to get join command
+        id: join
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ needs.create-vms.outputs.master_ip }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.MASTER_SSH_KEY }}
+          script_stop: true
+          script: |
+            JOIN_CMD=$(kubeadm token create --print-join-command)
+            echo "command=$JOIN_CMD" >> $GITHUB_OUTPUT
+
   bootstrap-worker:
     name: 🛠️ Bootstrap Worker Node
     needs: create-vms
@@ -76,8 +103,8 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.WORKER_SSH_KEY }}
           script: |
-            chmod +x ~/scripts/bootstrap-worker.sh
-            sudo ~/scripts/bootstrap-worker.sh
+            chmod +x ~/online-auction-kubernetes/self-managed/bootstrap-worker.sh
+            sudo ~/online-auction-kubernetes/self-managed/bootstrap-worker.sh "${{ needs.generate-join-command.outputs.join_command }}"
 
   setup-cloud-controller:
     name: ☁️ Set up Cloud Controller Manager
@@ -94,8 +121,13 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.MASTER_SSH_KEY }}
           script: |
-            chmod +x ~/scripts/setup-ccm.sh
-            sudo ~/scripts/setup-ccm.sh
+            export MASTER_NODE=${{ env.MASTER_INSTANCE_NAME}}
+            export WORKER_NODES="(${{ env.MASTER_INSTANCE_NAME}})"
+            export PROJECT_ID=${{ env.PROJECT_ID }}
+            export ZONE=${{ env.ZONE }}
+
+            chmod +x ~/online-auction-kubernetes/self-managed/setup-ccm.sh
+            sudo ~/online-auction-kubernetes/self-managed/setup-ccm.sh
 
   setup-csi:
     name: 💾 Set up CSI Driver
@@ -112,5 +144,8 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.MASTER_SSH_KEY }}
           script: |
-            chmod +x ~/scripts/setup-csi.sh
-            sudo ~/scripts/setup-csi.sh
+            export PROJECT_ID=${{ env.PROJECT_ID }}
+            export ZONE=${{ env.ZONE }}
+
+            chmod +x ~/online-auction-kubernetes/self-managed/setup-csi.sh
+            sudo ~/online-auction-kubernetes/self-managed/setup-csi.sh
