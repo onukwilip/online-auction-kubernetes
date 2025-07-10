@@ -80,7 +80,7 @@ jobs:
           echo "worker_ip=$IP" >> "$GITHUB_OUTPUT"
 
       - name: ⏱️ Wait for VMs to finish startup scripts
-        if: ${{ github.event.inputs.new_cluster == true }}
+        if: ${{ github.event.inputs.new_cluster == 'true' }}
         run: |
           echo "Waiting 6 minutes for VMs to complete startup scripts..."
           sleep 360
