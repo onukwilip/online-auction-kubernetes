@@ -101,7 +101,7 @@ jobs:
 
   bootstrap-worker:
     name: 🛠️ Bootstrap Worker Node
-    needs: create-vms
+    needs: [create-vms, generate-join-command]
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout repo
