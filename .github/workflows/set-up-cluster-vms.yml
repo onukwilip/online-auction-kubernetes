@@ -33,17 +33,27 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      - name: 🚀 Create master VM
+      - name: 🚀 Create master VM (if not exists)
         run: |
-          gcloud compute instances create "$MASTER_INSTANCE_NAME" \
-            --zone="$ZONE" \
-            --source-instance-template="$MASTER_TEMPLATE_NAME"
+          if gcloud compute instances describe "$MASTER_INSTANCE_NAME" --zone="$ZONE" &> /dev/null; then
+            echo "✅ Master VM already exists, skipping creation."
+          else
+            echo "🚀 Creating master VM..."
+            gcloud compute instances create "$MASTER_INSTANCE_NAME" \
+              --zone="$ZONE" \
+              --source-instance-template="$MASTER_TEMPLATE_NAME"
+          fi
 
-      - name: 🚀 Create worker VM
+      - name: 🚀 Create worker VM (if not exists)
         run: |
-          gcloud compute instances create "$WORKER_INSTANCE_NAME" \
-            --zone="$ZONE" \
-            --source-instance-template="$WORKER_TEMPLATE_NAME"
+          if gcloud compute instances describe "$WORKER_INSTANCE_NAME" --zone="$ZONE" &> /dev/null; then
+            echo "✅ Worker VM already exists, skipping creation."
+          else
+            echo "🚀 Creating worker VM..."
+            gcloud compute instances create "$WORKER_INSTANCE_NAME" \
+              --zone="$ZONE" \
+              --source-instance-template="$WORKER_TEMPLATE_NAME"
+          fi
 
       - name: 🌐 Get master public IP
         id: master-ip
