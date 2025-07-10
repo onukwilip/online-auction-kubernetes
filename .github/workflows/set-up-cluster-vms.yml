@@ -97,13 +97,14 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: Authenticate with GCP
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-
       - name: 📥 Checkout repo
         uses: actions/checkout@v3
+
+      - name: 🔐 Write credentials to file and authenticate
+        run: |
+          echo '${{ secrets.GCP_SERVICE_ACCOUNT }}' > /tmp/key.json
+          gcloud auth activate-service-account --key-file=/tmp/key.json
+          gcloud config set project ${{ env.PROJECT_ID }}
 
       - name: 💻 SSH into master and retrieve join command
         id: join
