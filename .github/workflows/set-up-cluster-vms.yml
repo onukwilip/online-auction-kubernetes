@@ -138,8 +138,15 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.WORKER_SSH_KEY }}
           script: |
+            echo "🚀 Bootstrapping Worker Node..."
             sudo chmod +x ~/online-auction-kubernetes/self-managed/bootstrap-worker-node.sh
-            sudo ~/online-auction-kubernetes/self-managed/bootstrap-worker-node.sh "${{ needs.generate-join-command.outputs.join_command }}"
+
+            if [ ! -f /etc/kubernetes/kubelet.conf ]; then
+              echo "🔗 Node not yet joined to cluster. Proceeding with join..."
+              sudo ~/online-auction-kubernetes/self-managed/bootstrap-worker-node.sh "${{ needs.generate-join-command.outputs.join_command }}"
+            else
+              echo "✅ Worker node is already part of the cluster. Skipping join step."
+            fi
 
   setup-cloud-controller:
     name: ☁️ Set up Cloud Controller Manager
