@@ -6,7 +6,8 @@ on:
       new_cluster:
         description: "Indicate if the cluster has already been set up"
         required: true
-        default: "true"
+        type: boolean
+        default: true
 
 env:
   PROJECT_ID: ${{ vars.PROJECT_ID }}
