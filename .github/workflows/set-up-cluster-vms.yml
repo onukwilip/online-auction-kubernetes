@@ -172,10 +172,10 @@ jobs:
 
             sudo chmod +x ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
 
-            PROJECT_ID=${{ env.PROJECT_ID }} \
-            ZONE=${{ env.ZONE }} \
-            MASTER_NODE=${{ env.MASTER_INSTANCE_NAME }} \
-            WORKER_NODES=${{ env.WORKER_TEMPLATE_NAME }} \
+            export PROJECT_ID=${{ env.PROJECT_ID }} \
+            export ZONE=${{ env.ZONE }} \
+            export MASTER_NODE=${{ env.MASTER_INSTANCE_NAME }} \
+            export WORKER_NODES=${{ env.WORKER_TEMPLATE_NAME }} \
 
             sudo -E ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
 
