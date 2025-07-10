@@ -182,5 +182,5 @@ jobs:
             export PROJECT_ID=${{ env.PROJECT_ID }}
             export ZONE=${{ env.ZONE }}
 
-            chmod +x ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
+            sudo chmod +x ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
             sudo ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
