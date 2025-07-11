@@ -58,9 +58,13 @@ node-tags = k8s-node
 node-tags = kubernetes-node
 EOF
 
+# ! REMOVE
+kubectl get pods
+
 # * 6. Update gcp-ccm.yaml (dynamically insert vars)
 echo "📦 Applying Google Cloud Controller Manager..."
-envsubst < ./online-auction-kubernetes/self-managed/manifests/gcp-ccm.yaml | kubectl apply -f -
+envsubst < ./online-auction-kubernetes/self-managed/manifests/gcp-ccm.yaml > ./online-auction-kubernetes/self-managed/manifests/gcp-ccm-valid.yaml
+kubectl apply -f ./online-auction-kubernetes/self-managed/manifests/gcp-ccm-valid.yaml
 
 # * 7. Bind clusterrole if needed
 echo "🔐 Creating clusterrole bindings for cloud controller manager..."
