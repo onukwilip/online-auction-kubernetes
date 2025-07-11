@@ -91,13 +91,22 @@ envsubst < ./online-auction-kubernetes/self-managed/manifests/gcp-ccm.yaml > ./o
 kubectl apply -f ./online-auction-kubernetes/self-managed/manifests/gcp-ccm-valid.yaml
 
 # * 7. Bind clusterrole if needed
-echo "🔐 Creating clusterrole bindings for cloud controller manager..."
-kubectl create clusterrole cloud-controller-patch-nodes \
---verb=patch,update,get \
---resource=nodes || true
+# ✅ Create ClusterRole only if it doesn't exist
+if ! kubectl get clusterrole cloud-controller-patch-nodes >/dev/null 2>&1; then
+    kubectl create clusterrole cloud-controller-patch-nodes \
+    --verb=patch,update,get \
+    --resource=nodes
+else
+    echo "ℹ️ ClusterRole 'cloud-controller-patch-nodes' already exists."
+fi
 
-kubectl create clusterrolebinding cloud-controller-patch-nodes \
---clusterrole=cloud-controller-patch-nodes \
---serviceaccount=kube-system:cloud-controller-manager || true
+# ✅ Create ClusterRoleBinding only if it doesn't exist
+if ! kubectl get clusterrolebinding cloud-controller-patch-nodes >/dev/null 2>&1; then
+    kubectl create clusterrolebinding cloud-controller-patch-nodes \
+    --clusterrole=cloud-controller-patch-nodes \
+    --serviceaccount=kube-system:cloud-controller-manager
+else
+    echo "ℹ️  ClusterRoleBinding 'cloud-controller-patch-nodes' already exists."
+fi
 
 echo "✅ Cloud Controller setup and Node patching complete!"
