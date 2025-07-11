@@ -16,7 +16,11 @@ echo "WORKER_NODES: $WORKER_NODES"
 CLUSTER_CIDR="192.168.0.0/16"
 MASTER_INTERNAL_IP=$(gcloud compute instances describe $MASTER_NODE --zone=$ZONE --format='get(networkInterfaces[0].networkIP)')
 
-sudo apt install yq -y
+# sudo apt install yq -y
+
+sudo wget -qO /usr/local/bin/yq \
+https://github.com/mikefarah/yq/releases/download/v4.46.1/yq_linux_amd64
+sudo chmod +x /usr/local/bin/yq
 
 # * 1. Patch Master Node
 echo "🔧 Patching providerID for Master Node..."
