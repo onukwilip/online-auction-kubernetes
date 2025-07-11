@@ -60,7 +60,7 @@ EOF
 
 # * 6. Update gcp-ccm.yaml (dynamically insert vars)
 echo "📦 Applying Google Cloud Controller Manager..."
-envsubst < ./online-auction-kubernetes/manifests/gcp-ccm.yaml | kubectl apply -f -
+envsubst < ./online-auction-kubernetes/self-managed/manifests/gcp-ccm.yaml | kubectl apply -f -
 
 # * 7. Bind clusterrole if needed
 echo "🔐 Creating clusterrole bindings for cloud controller manager..."
