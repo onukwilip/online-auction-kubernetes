@@ -41,15 +41,11 @@ sudo yq -i 'del(.spec.containers[0].command[] | select(. == "--cloud-provider=gc
 
 # Append nodeipam to controller list if not already there
 sudo yq -i '
-  # Walk the command list and patch the controllers flag idempotently
+  # ➋ Modify the --controllers flag, only if nodeipam isnt already there
   .spec.containers[0].command |= map(
-    if  (. | test("^--controllers="))            # is this the flag?
-        and
-        (. | test("nodeipam") | not)             # …and missing nodeipam?
-    then
-        . + ",nodeipam"                          # ➌ append it
-    else
-        .
+    if startswith("--controllers=") and (contains("nodeipam") | not)
+    then . + ",nodeipam"
+    else .
     end
   )
 ' /etc/kubernetes/manifests/kube-controller-manager.yaml
