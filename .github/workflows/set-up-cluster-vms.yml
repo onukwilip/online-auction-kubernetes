@@ -207,4 +207,4 @@ jobs:
             export ZONE=${{ env.ZONE }}
 
             sudo chmod +x ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
-            sudo ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
+            sudo -E ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
