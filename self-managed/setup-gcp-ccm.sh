@@ -59,7 +59,7 @@ node-tags = kubernetes-node
 EOF
 
 # ! REMOVE
-kubectl get pods
+kubectl get pods -n kube-system
 
 # * 6. Update gcp-ccm.yaml (dynamically insert vars)
 echo "📦 Applying Google Cloud Controller Manager..."
