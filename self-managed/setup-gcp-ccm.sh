@@ -36,19 +36,27 @@ done
 
 echo "🔧 Updating cloud config files..."
 # * 3. Modify kube-controller-manager
-# Remove existing cloud-provider flag from controller-manager.yaml
 sudo yq -i 'del(.spec.containers[0].command[] | select(. == "--cloud-provider=gce"))' /etc/kubernetes/manifests/kube-controller-manager.yaml
 
-# Append nodeipam to controller list if not already there
-sudo yq -i '
-  # ➋ Modify the --controllers flag, only if nodeipam isnt already there
-  .spec.containers[0].command |= map(
-    if startswith("--controllers=") and (contains("nodeipam") | not)
-    then . + ",nodeipam"
-    else .
-    end
-  )
-' /etc/kubernetes/manifests/kube-controller-manager.yaml
+# Check if controllers flag exists
+CONTROLLERS_EXISTS=$(sudo yq '.spec.containers[0].command[] | select(test("--controllers="))' /etc/kubernetes/manifests/kube-controller-manager.yaml)
+
+if [ -z "$CONTROLLERS_EXISTS" ]; then
+    # Controllers flag does not exist, add it
+    echo "Adding --controllers flag with nodeipam"
+    sudo yq -i '.spec.containers[0].command += ["--controllers=*,bootstrapsigner,tokencleaner,nodeipam"]' /etc/kubernetes/manifests/kube-controller-manager.yaml
+else
+    # Controllers flag exists, check if nodeipam is already there
+    NODEIPAM_EXISTS=$(sudo yq '.spec.containers[0].command[] | select(test("--controllers=.*nodeipam"))' /etc/kubernetes/manifests/kube-controller-manager.yaml)
+    
+    if [ -z "$NODEIPAM_EXISTS" ]; then
+        # nodeipam not found, append it
+        echo "Appending nodeipam to existing --controllers flag"
+        sudo yq -i '(.spec.containers[0].command[] | select(test("--controllers="))) |= . + ",nodeipam"' /etc/kubernetes/manifests/kube-controller-manager.yaml
+    else
+        echo "nodeipam already exists in --controllers flag, skipping"
+    fi
+fi
 
 # * 4. Modify kube-apiserver
 # Add "--cloud-provider=external" to kube-apiserver.yaml container command arguments
