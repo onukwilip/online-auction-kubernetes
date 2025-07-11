@@ -186,7 +186,7 @@ jobs:
             sudo -E ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
 
             cd ~/online-auction-kubernetes
-            sudo git add . && sudo git commit -m 'Updating changes...'
+            sudo git add . && sudo git commit -m 'Updating changes...' || true
 
   setup-csi:
     name: 💾 Set up CSI Driver
