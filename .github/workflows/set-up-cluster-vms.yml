@@ -177,10 +177,15 @@ jobs:
             export MASTER_NODE=${{ env.MASTER_INSTANCE_NAME }} \
             export WORKER_NODES=${{ env.WORKER_TEMPLATE_NAME }} \
 
+            cd ~/online-auction-kubernetes
             sudo git add . && sudo git commit -m 'Commiting previous changes if any'
             sudo git pull --rebase origin main
 
+            cd ..
+
             sudo -E ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
+
+            cd ~/online-auction-kubernetes
             sudo git add . && sudo git commit -m 'Updating changes...'
 
   setup-csi:
