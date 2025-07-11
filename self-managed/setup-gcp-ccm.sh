@@ -60,13 +60,18 @@ fi
 
 # * 4. Modify kube-apiserver
 # Add "--cloud-provider=external" to kube-apiserver.yaml container command arguments
-sudo yq -i '
-  if .spec.containers[0].command | index("--cloud-provider=external") then
-    .
-  else
-    .spec.containers[0].command += "--cloud-provider=external"
-  end
-' /etc/kubernetes/manifests/kube-apiserver.yaml
+echo "Modifying Kube API servier"
+
+# Check if --cloud-provider=external flag exists
+CLOUD_PROVIDER_EXISTS=$(sudo yq '.spec.containers[0].command[] | select(. == "--cloud-provider=external")' /etc/kubernetes/manifests/kube-apiserver.yaml)
+
+if [ -z "$CLOUD_PROVIDER_EXISTS" ]; then
+    # Flag does not exist, add it
+    echo "Adding --cloud-provider=external flag to kube-apiserver"
+    sudo yq -i '.spec.containers[0].command += ["--cloud-provider=external"]' /etc/kubernetes/manifests/kube-apiserver.yaml
+else
+    echo "--cloud-provider=external flag already exists in kube-apiserver, skipping"
+fi
 
 # * 5. Create cloud config
 echo "📄 Creating cloud config file..."
