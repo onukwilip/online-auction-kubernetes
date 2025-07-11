@@ -41,13 +41,23 @@ sudo yq -i 'del(.spec.containers[0].command[] | select(. == "--cloud-provider=gc
 
 # Append nodeipam to controller list if not already there
 sudo yq -i '
-  (.spec.containers[0].command[] | select(test("--controllers="))) =
-  (.spec.containers[0].command[] | select(test("--controllers=")) + ",nodeipam")
+  # Update the --controllers flag in-place
+  (.spec.containers[0].command[] | select(startswith("--controllers="))) |=
+    (if contains("nodeipam")            # already present? keep as‑is
+     then .
+     else . + ",nodeipam"               # otherwise append
+     end)
 ' /etc/kubernetes/manifests/kube-controller-manager.yaml
 
 # * 4. Modify kube-apiserver
 # Add "--cloud-provider=external" to kube-apiserver.yaml container command arguments
-sudo yq -i '.spec.containers[0].command += "--cloud-provider=external"' /etc/kubernetes/manifests/kube-apiserver.yaml
+sudo yq -i '
+  if .spec.containers[0].command | index("--cloud-provider=external") then
+    .
+  else
+    .spec.containers[0].command += "--cloud-provider=external"
+  end
+' /etc/kubernetes/manifests/kube-apiserver.yaml
 
 # * 5. Create cloud config
 echo "📄 Creating cloud config file..."
