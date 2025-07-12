@@ -1,3 +1,214 @@
+# name: Set up Cluster on Compute Engine VMs
+
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       new_cluster:
+#         description: "Wait for cluster set up to run startup scripts"
+#         required: true
+#         type: boolean
+#         default: true
+
+# env:
+#   PROJECT_ID: ${{ vars.PROJECT_ID }}
+#   REGION: us-central1
+#   ZONE: "us-central1-a"
+#   MASTER_INSTANCE_NAME: k8s-master-node
+#   WORKER_INSTANCE_NAME: k8s-worker-node
+#   MASTER_TEMPLATE_NAME: k8s-master-node
+#   WORKER_TEMPLATE_NAME: k8s-worker-node
+#   MASTER_SSH_KEY: ${{ secrets.MASTER_SSH_KEY }}
+#   WORKER_SSH_KEY: ${{ secrets.WORKER_SSH_KEY }}
+#   SSH_USER: onukwilip
+
+# jobs:
+#   create-vms:
+#     name: 🏗️ Create VM Instances
+#     runs-on: ubuntu-latest
+#     outputs:
+#       master_ip: ${{ steps.master-ip.outputs.master_ip }}
+#       worker_ip: ${{ steps.worker-ip.outputs.worker_ip }}
+#     steps:
+#       - name: 🧰 Set up gcloud SDK
+#         uses: google-github-actions/setup-gcloud@v2
+#         with:
+#           project_id: ${{ env.PROJECT_ID }}
+
+#       - name: Authenticate for GCP
+#         id: gcp-auth
+#         uses: google-github-actions/auth@v0
+#         with:
+#           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+#       - name: 🚀 Create master VM (if not exists)
+#         run: |
+#           if gcloud compute instances describe "$MASTER_INSTANCE_NAME" --zone="$ZONE" &> /dev/null; then
+#             echo "✅ Master VM already exists, skipping creation."
+#           else
+#             echo "🚀 Creating master VM..."
+#             gcloud compute instances create "$MASTER_INSTANCE_NAME" \
+#               --zone="$ZONE" \
+#               --source-instance-template="projects/${{env.PROJECT_ID}}/regions/${{env.REGION}}/instanceTemplates/${{env.MASTER_TEMPLATE_NAME}}"
+#           fi
+
+#       - name: 🚀 Create worker VM (if not exists)
+#         run: |
+#           if gcloud compute instances describe "$WORKER_INSTANCE_NAME" --zone="$ZONE" &> /dev/null; then
+#             echo "✅ Worker VM already exists, skipping creation."
+#           else
+#             echo "🚀 Creating worker VM..."
+#             gcloud compute instances create "$WORKER_INSTANCE_NAME" \
+#               --zone="$ZONE" \
+#               --source-instance-template="projects/${{env.PROJECT_ID}}/regions/${{env.REGION}}/instanceTemplates/${{env.WORKER_TEMPLATE_NAME}}"
+#           fi
+
+#       - name: 🌐 Get master public IP
+#         id: master-ip
+#         run: |
+#           IP=$(gcloud compute instances describe "$MASTER_INSTANCE_NAME" \
+#             --zone="$ZONE" \
+#             --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
+#           echo "master_ip=$IP" >> "$GITHUB_OUTPUT"
+
+#       - name: 🌐 Get worker public IP
+#         id: worker-ip
+#         run: |
+#           IP=$(gcloud compute instances describe "$WORKER_INSTANCE_NAME" \
+#             --zone="$ZONE" \
+#             --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
+#           echo "Worker IP: $IP"
+#           echo "worker_ip=$IP" >> "$GITHUB_OUTPUT"
+
+#       - name: ⏱️ Wait for VMs to finish startup scripts
+#         if: ${{ github.event.inputs.new_cluster == 'true' }}
+#         run: |
+#           echo "Waiting 6 minutes for VMs to complete startup scripts..."
+#           sleep 360
+
+#   generate-join-command:
+#     name: 🔑 Generate kubeadm join command
+#     needs: create-vms
+#     runs-on: ubuntu-latest
+#     outputs:
+#       join_command: ${{ steps.join.outputs.join_command }}
+#     steps:
+#       - name: 🧰 Set up gcloud SDK
+#         uses: google-github-actions/setup-gcloud@v2
+#         with:
+#           project_id: ${{ env.PROJECT_ID }}
+
+#       - name: 📥 Checkout repo
+#         uses: actions/checkout@v3
+
+#       - name: 🔐 Write credentials to file and authenticate
+#         run: |
+#           echo '${{ secrets.GCP_SERVICE_ACCOUNT }}' > /tmp/key.json
+#           gcloud auth activate-service-account --key-file=/tmp/key.json
+#           gcloud config set project ${{ env.PROJECT_ID }}
+
+#       - name: 💻 SSH into master and retrieve join command
+#         id: join
+#         run: |
+#           JOIN_CMD=$(gcloud compute ssh ${{ env.SSH_USER }}@${{ env.MASTER_INSTANCE_NAME }} \
+#             --zone=${{ env.ZONE }} \
+#             --quiet \
+#             --command='kubeadm token create --print-join-command' 2>/dev/null | grep '^kubeadm join')
+
+#           echo "Join command is: $JOIN_CMD"
+#           echo "join_command=$JOIN_CMD" >> "$GITHUB_OUTPUT"
+
+#   bootstrap-worker:
+#     name: 🛠️ Bootstrap Worker Node
+#     needs: [create-vms, generate-join-command]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: 📥 Checkout repo
+#         uses: actions/checkout@v3
+
+#       - name: 🐛 Debug Outputs
+#         run: |
+#           echo "Resolved Master IP: ${{ needs.create-vms.outputs.master_ip }}"
+#           echo "Resolved Worker IP: ${{ needs.create-vms.outputs.worker_ip }}"
+#           echo "Join Command: \"${{ needs.generate-join-command.outputs.join_command }}\""
+
+#       - name: 💻 SSH into worker and run script
+#         uses: appleboy/ssh-action@v1.0.3
+#         with:
+#           host: ${{ needs.create-vms.outputs.worker_ip }}
+#           username: ${{ env.SSH_USER }}
+#           key: ${{ env.WORKER_SSH_KEY }}
+#           script: |
+#             echo "🚀 Bootstrapping Worker Node..."
+#             sudo chmod +x ~/online-auction-kubernetes/self-managed/bootstrap-worker-node.sh
+
+#             if [ ! -f /etc/kubernetes/kubelet.conf ]; then
+#               echo "🔗 Node not yet joined to cluster. Proceeding with join..."
+#               sudo ~/online-auction-kubernetes/self-managed/bootstrap-worker-node.sh "${{ needs.generate-join-command.outputs.join_command }}"
+#             else
+#               echo "✅ Worker node is already part of the cluster. Skipping join step."
+#             fi
+
+#   setup-cloud-controller:
+#     name: ☁️ Set up Cloud Controller Manager
+#     needs: [bootstrap-worker, create-vms]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: 📥 Checkout repo
+#         uses: actions/checkout@v3
+
+#       - name: 💻 SSH into master and run CCM script
+#         uses: appleboy/ssh-action@v1.0.3
+#         with:
+#           host: ${{ needs.create-vms.outputs.master_ip }}
+#           username: ${{ env.SSH_USER }}
+#           key: ${{ env.MASTER_SSH_KEY }}
+#           script: |
+#             echo "Outside Script"
+
+#             echo "PROJECT_ID: ${{ env.PROJECT_ID }}"
+#             echo "ZONE: ${{ env.ZONE }}"
+#             echo "MASTER_NODE: ${{ env.MASTER_INSTANCE_NAME }}"
+#             echo "WORKER_NODES: ${{ env.WORKER_TEMPLATE_NAME }}"
+
+#             sudo chmod +x ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
+
+#             export PROJECT_ID=${{ env.PROJECT_ID }} \
+#             export ZONE=${{ env.ZONE }} \
+#             export MASTER_NODE=${{ env.MASTER_INSTANCE_NAME }} \
+#             export WORKER_NODES=${{ env.WORKER_TEMPLATE_NAME }} \
+
+#             cd ~/online-auction-kubernetes
+#             sudo git add . && sudo git commit -m 'Commiting previous changes if any' || true
+#             sudo git pull --rebase origin main || true
+
+#             cd ..
+
+#             sudo -E ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
+
+#             cd ~/online-auction-kubernetes
+#             sudo git add . && sudo git commit -m 'Updating changes...' || true
+
+#   setup-csi:
+#     name: 💾 Set up CSI Driver
+#     needs: [setup-cloud-controller, create-vms]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: 📥 Checkout repo
+#         uses: actions/checkout@v3
+
+#       - name: 💻 SSH into master and run CSI driver script
+#         uses: appleboy/ssh-action@v1.0.3
+#         with:
+#           host: ${{ needs.create-vms.outputs.master_ip }}
+#           username: ${{ env.SSH_USER }}
+#           key: ${{ env.MASTER_SSH_KEY }}
+#           script: |
+#             export PROJECT_ID=${{ env.PROJECT_ID }}
+#             export ZONE=${{ env.ZONE }}
+
+#             sudo chmod +x ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
+#             sudo -E ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
+---
 name: Set up Cluster on Compute Engine VMs
 
 on:
@@ -8,6 +219,11 @@ on:
         required: true
         type: boolean
         default: true
+      worker_count:
+        description: "Number of worker nodes to create"
+        required: true
+        type: number
+        default: 2
 
 env:
   PROJECT_ID: ${{ vars.PROJECT_ID }}
@@ -27,7 +243,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       master_ip: ${{ steps.master-ip.outputs.master_ip }}
-      worker_ip: ${{ steps.worker-ip.outputs.worker_ip }}
+      worker_ips: ${{ steps.worker-ips.outputs.worker_ips }}
+      worker_names: ${{ steps.worker-names.outputs.worker_names }}
     steps:
       - name: 🧰 Set up gcloud SDK
         uses: google-github-actions/setup-gcloud@v2
@@ -51,16 +268,23 @@ jobs:
               --source-instance-template="projects/${{env.PROJECT_ID}}/regions/${{env.REGION}}/instanceTemplates/${{env.MASTER_TEMPLATE_NAME}}"
           fi
 
-      - name: 🚀 Create worker VM (if not exists)
+      - name: 🚀 Create worker VMs
         run: |
-          if gcloud compute instances describe "$WORKER_INSTANCE_NAME" --zone="$ZONE" &> /dev/null; then
-            echo "✅ Worker VM already exists, skipping creation."
-          else
-            echo "🚀 Creating worker VM..."
-            gcloud compute instances create "$WORKER_INSTANCE_NAME" \
-              --zone="$ZONE" \
-              --source-instance-template="projects/${{env.PROJECT_ID}}/regions/${{env.REGION}}/instanceTemplates/${{env.WORKER_TEMPLATE_NAME}}"
-          fi
+          WORKER_COUNT=${{ github.event.inputs.worker_count }}
+          echo "🚀 Creating $WORKER_COUNT worker VMs..."
+
+          for i in $(seq 1 $WORKER_COUNT); do
+            WORKER_NAME="${WORKER_INSTANCE_NAME}-${i}"
+            
+            if gcloud compute instances describe "$WORKER_NAME" --zone="$ZONE" &> /dev/null; then
+              echo "✅ Worker VM $WORKER_NAME already exists, skipping creation."
+            else
+              echo "🚀 Creating worker VM $WORKER_NAME..."
+              gcloud compute instances create "$WORKER_NAME" \
+                --zone="$ZONE" \
+                --source-instance-template="projects/${{env.PROJECT_ID}}/regions/${{env.REGION}}/instanceTemplates/${{env.WORKER_TEMPLATE_NAME}}"
+            fi
+          done
 
       - name: 🌐 Get master public IP
         id: master-ip
@@ -68,16 +292,50 @@ jobs:
           IP=$(gcloud compute instances describe "$MASTER_INSTANCE_NAME" \
             --zone="$ZONE" \
             --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
+          echo "Master IP: $IP"
           echo "master_ip=$IP" >> "$GITHUB_OUTPUT"
 
-      - name: 🌐 Get worker public IP
-        id: worker-ip
+      - name: 🌐 Get worker public IPs
+        id: worker-ips
         run: |
-          IP=$(gcloud compute instances describe "$WORKER_INSTANCE_NAME" \
-            --zone="$ZONE" \
-            --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
-          echo "Worker IP: $IP"
-          echo "worker_ip=$IP" >> "$GITHUB_OUTPUT"
+          WORKER_COUNT=${{ github.event.inputs.worker_count }}
+          WORKER_IPS=""
+
+          for i in $(seq 1 $WORKER_COUNT); do
+            WORKER_NAME="${WORKER_INSTANCE_NAME}-${i}"
+            IP=$(gcloud compute instances describe "$WORKER_NAME" \
+              --zone="$ZONE" \
+              --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
+            echo "Worker $i IP: $IP"
+            
+            if [ -z "$WORKER_IPS" ]; then
+              WORKER_IPS="$IP"
+            else
+              WORKER_IPS="$WORKER_IPS,$IP"
+            fi
+          done
+
+          echo "All Worker IPs: $WORKER_IPS"
+          echo "worker_ips=$WORKER_IPS" >> "$GITHUB_OUTPUT"
+
+      - name: 📝 Get worker names
+        id: worker-names
+        run: |
+          WORKER_COUNT=${{ github.event.inputs.worker_count }}
+          WORKER_NAMES=""
+
+          for i in $(seq 1 $WORKER_COUNT); do
+            WORKER_NAME="${WORKER_INSTANCE_NAME}-${i}"
+            
+            if [ -z "$WORKER_NAMES" ]; then
+              WORKER_NAMES="$WORKER_NAME"
+            else
+              WORKER_NAMES="$WORKER_NAMES,$WORKER_NAME"
+            fi
+          done
+
+          echo "All Worker Names: $WORKER_NAMES"
+          echo "worker_names=$WORKER_NAMES" >> "$GITHUB_OUTPUT"
 
       - name: ⏱️ Wait for VMs to finish startup scripts
         if: ${{ github.event.inputs.new_cluster == 'true' }}
@@ -117,10 +375,41 @@ jobs:
           echo "Join command is: $JOIN_CMD"
           echo "join_command=$JOIN_CMD" >> "$GITHUB_OUTPUT"
 
-  bootstrap-worker:
-    name: 🛠️ Bootstrap Worker Node
-    needs: [create-vms, generate-join-command]
+  prepare-worker-matrix:
+    name: 🔧 Prepare Worker Matrix
+    needs: [create-vms]
     runs-on: ubuntu-latest
+    outputs:
+      worker_ips_array: ${{ steps.setup-matrix.outputs.worker_ips_array }}
+    steps:
+      - name: 🔧 Setup matrix for worker IPs
+        id: setup-matrix
+        run: |
+          # Convert comma-separated IPs to JSON array
+          WORKER_IPS="${{ needs.create-vms.outputs.worker_ips }}"
+          echo "Raw worker IPs: $WORKER_IPS"
+
+          # Convert to JSON array format
+          IFS=',' read -ra IP_ARRAY <<< "$WORKER_IPS"
+          JSON_ARRAY="["
+          for i in "${!IP_ARRAY[@]}"; do
+            if [ $i -gt 0 ]; then
+              JSON_ARRAY+=","
+            fi
+            JSON_ARRAY+="\"${IP_ARRAY[$i]}\""
+          done
+          JSON_ARRAY+="]"
+
+          echo "JSON Array: $JSON_ARRAY"
+          echo "worker_ips_array=$JSON_ARRAY" >> "$GITHUB_OUTPUT"
+
+  bootstrap-workers:
+    name: 🛠️ Bootstrap Worker Nodes
+    needs: [create-vms, generate-join-command, prepare-worker-matrix]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        worker_ip: ${{ fromJson(needs.prepare-worker-matrix.outputs.worker_ips_array) }}
     steps:
       - name: 📥 Checkout repo
         uses: actions/checkout@v3
@@ -128,17 +417,18 @@ jobs:
       - name: 🐛 Debug Outputs
         run: |
           echo "Resolved Master IP: ${{ needs.create-vms.outputs.master_ip }}"
-          echo "Resolved Worker IP: ${{ needs.create-vms.outputs.worker_ip }}"
+          echo "Resolved Worker IPs: ${{ needs.create-vms.outputs.worker_ips }}"
+          echo "Current Worker IP: ${{ matrix.worker_ip }}"
           echo "Join Command: \"${{ needs.generate-join-command.outputs.join_command }}\""
 
       - name: 💻 SSH into worker and run script
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ needs.create-vms.outputs.worker_ip }}
+          host: ${{ matrix.worker_ip }}
           username: ${{ env.SSH_USER }}
           key: ${{ env.WORKER_SSH_KEY }}
           script: |
-            echo "🚀 Bootstrapping Worker Node..."
+            echo "🚀 Bootstrapping Worker Node at ${{ matrix.worker_ip }}..."
             sudo chmod +x ~/online-auction-kubernetes/self-managed/bootstrap-worker-node.sh
 
             if [ ! -f /etc/kubernetes/kubelet.conf ]; then
@@ -150,7 +440,7 @@ jobs:
 
   setup-cloud-controller:
     name: ☁️ Set up Cloud Controller Manager
-    needs: [bootstrap-worker, create-vms]
+    needs: [bootstrap-workers, create-vms]
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout repo
@@ -168,14 +458,9 @@ jobs:
             echo "PROJECT_ID: ${{ env.PROJECT_ID }}"
             echo "ZONE: ${{ env.ZONE }}"
             echo "MASTER_NODE: ${{ env.MASTER_INSTANCE_NAME }}"
-            echo "WORKER_NODES: ${{ env.WORKER_TEMPLATE_NAME }}"
+            echo "WORKER_NODES: ${{ needs.create-vms.outputs.worker_names }}"
 
             sudo chmod +x ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
-
-            export PROJECT_ID=${{ env.PROJECT_ID }} \
-            export ZONE=${{ env.ZONE }} \
-            export MASTER_NODE=${{ env.MASTER_INSTANCE_NAME }} \
-            export WORKER_NODES=${{ env.WORKER_TEMPLATE_NAME }} \
 
             cd ~/online-auction-kubernetes
             sudo git add . && sudo git commit -m 'Commiting previous changes if any' || true
@@ -183,7 +468,33 @@ jobs:
 
             cd ..
 
-            sudo -E ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
+            # Export environment variables and create a wrapper script
+            export PROJECT_ID=${{ env.PROJECT_ID }}
+            export ZONE=${{ env.ZONE }}
+            export MASTER_NODE=${{ env.MASTER_INSTANCE_NAME }}
+
+            # Convert comma-separated worker names to bash array and run script
+            WORKER_NAMES_CSV="${{ needs.create-vms.outputs.worker_names }}"
+            IFS=',' read -ra WORKER_NODES <<< "$WORKER_NAMES_CSV"
+
+            echo "Worker nodes array: ${WORKER_NODES[@]}"
+
+            # Create a temporary script that sets up the WORKER_NODES array and calls the original script
+            cat > /tmp/ccm_wrapper.sh << 'EOF'
+            #!/bin/bash
+            # Convert the comma-separated string to array
+            IFS=',' read -ra WORKER_NODES <<< "$1"
+            export WORKER_NODES=("${WORKER_NODES[@]}")
+            shift
+            # Execute the original script with remaining arguments
+            exec "$@"
+            EOF
+
+            chmod +x /tmp/ccm_wrapper.sh
+            sudo -E /tmp/ccm_wrapper.sh "$WORKER_NAMES_CSV" ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
+
+            # Clean up
+            rm -f /tmp/ccm_wrapper.sh
 
             cd ~/online-auction-kubernetes
             sudo git add . && sudo git commit -m 'Updating changes...' || true
@@ -206,5 +517,12 @@ jobs:
             export PROJECT_ID=${{ env.PROJECT_ID }}
             export ZONE=${{ env.ZONE }}
 
-            sudo chmod +x ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
-            sudo -E ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
+            # Set up kubeconfig for the current user
+            echo "🔧 Setting up kubeconfig..."
+            mkdir -p ~/.kube
+            sudo cp /etc/kubernetes/admin.conf ~/.kube/config
+            sudo chown $(id -u):$(id -g) ~/.kube/config
+
+            # Make script executable and run it
+            chmod +x ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
+            ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
