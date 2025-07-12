@@ -517,12 +517,6 @@ jobs:
             export PROJECT_ID=${{ env.PROJECT_ID }}
             export ZONE=${{ env.ZONE }}
 
-            # Set up kubeconfig for the current user
-            echo "🔧 Setting up kubeconfig..."
-            mkdir -p ~/.kube
-            sudo cp /etc/kubernetes/admin.conf ~/.kube/config
-            sudo chown $(id -u):$(id -g) ~/.kube/config
-
             # Make script executable and run it
-            chmod +x ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
-            ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
+            sudo chmod +x ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
+            sudo -E ~/online-auction-kubernetes/self-managed/setup-csi-driver.sh
