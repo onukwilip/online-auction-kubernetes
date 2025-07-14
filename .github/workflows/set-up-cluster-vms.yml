@@ -228,7 +228,7 @@ jobs:
             fi
 
   setup-cloud-controller:
-    name: ☁️ Set up Cloud Controller Manager
+    name: ☁️ Set up Cloud Controller Manager + CoreDNS
     needs: [bootstrap-workers, create-vms]
     runs-on: ubuntu-latest
     steps:
@@ -281,6 +281,10 @@ jobs:
 
             chmod +x /tmp/ccm_wrapper.sh
             sudo -E /tmp/ccm_wrapper.sh "$WORKER_NAMES_CSV" ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
+
+            echo "Applying CoreDNS RoleBinding..."
+            kubectl apply -f ./online-auction-kubernetes/self-managed/manifests/core-dns-rolebinding.yml
+            kubectl -n kube-system rollout restart deployment/coredns
 
             # Clean up
             rm -f /tmp/ccm_wrapper.sh
