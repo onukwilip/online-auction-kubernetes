@@ -14,5 +14,6 @@ kubectl get ns gce-pd-csi-driver >/dev/null 2>&1 || kubectl create ns gce-pd-csi
 # 2 Apply the CSI driver manifests
 echo "📦 Applying CSI driver manifests..."
 kubectl apply -k "$MANIFEST_PATH"
+kubectl apply -f ./online-auction-kubernetes/manifests/persistent-volume.yml
 
 echo "✅ CSI driver configured and applied successfully!"
