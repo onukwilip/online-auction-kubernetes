@@ -227,6 +227,25 @@ jobs:
               echo "✅ Worker node is already part of the cluster. Skipping join step."
             fi
 
+  configure-coredns-rolebinding:
+    name: 🛡️ Configure CoreDNS RoleBinding
+    needs: [bootstrap-workers, create-vms]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 💻 SSH into master and run CoreDNS RoleBinding manifest
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ needs.create-vms.outputs.master_ip }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.MASTER_SSH_KEY }}
+          script: |
+            echo "🛡️ Applying CoreDNS RoleBinding..."
+            kubectl apply -f ./online-auction-kubernetes/self-managed/manifests/core-dns-rolebinding.yml
+            kubectl -n kube-system rollout restart deployment/coredns
+
   setup-cloud-controller:
     name: ☁️ Set up Cloud Controller Manager + CoreDNS
     needs: [bootstrap-workers, create-vms]
@@ -282,10 +301,6 @@ jobs:
             chmod +x /tmp/ccm_wrapper.sh
             sudo -E /tmp/ccm_wrapper.sh "$WORKER_NAMES_CSV" ~/online-auction-kubernetes/self-managed/setup-gcp-ccm.sh
 
-            echo "Applying CoreDNS RoleBinding..."
-            kubectl apply -f ./online-auction-kubernetes/self-managed/manifests/core-dns-rolebinding.yml
-            kubectl -n kube-system rollout restart deployment/coredns
-
             # Clean up
             rm -f /tmp/ccm_wrapper.sh
 
@@ -299,6 +314,11 @@ jobs:
     steps:
       - name: 📥 Checkout repo
         uses: actions/checkout@v3
+
+      - name: ⏳ Wait for cluster to be ready
+        run: |
+          echo "Waiting for Kubernetes API server..."
+          timeout 120 bash -c 'until kubectl cluster-info &> /dev/null; do sleep 10; done'
 
       - name: 💻 SSH into master and run CSI driver script
         uses: appleboy/ssh-action@v1.0.3
