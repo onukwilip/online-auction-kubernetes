@@ -9,7 +9,7 @@ spec:
   selector:
     app: online-auction
     obj: pod
-  type: ClusterIP
+  type: LoadBalancer # ClusterIP
   ports:
   - port: 3000
     name: oa-port

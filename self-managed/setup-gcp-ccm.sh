@@ -68,6 +68,20 @@ if [ -z "$CLOUD_PROVIDER_EXISTS" ]; then
     # Flag does not exist, add it
     echo "Adding --cloud-provider=external flag to kube-apiserver"
     sudo yq -i '.spec.containers[0].command += ["--cloud-provider=external"]' /etc/kubernetes/manifests/kube-apiserver.yaml
+    
+    echo "⏳ Waiting for API server to restart after configuration change..."
+    # Wait a moment for the restart to begin
+    sleep 5
+    
+    # Wait for API server to be ready again
+    timeout 120 bash -c 'until kubectl cluster-info &> /dev/null; do echo "Waiting for API server restart..."; sleep 5; done'
+    
+    if ! kubectl cluster-info &> /dev/null; then
+        echo "❌ API server not ready after restart"
+        exit 1
+    fi
+    
+    echo "✅ API server restarted successfully!"
 else
     echo "--cloud-provider=external flag already exists in kube-apiserver, skipping"
 fi
